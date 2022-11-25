@@ -1,7 +1,8 @@
 #include "DxLib.h"
+#include<math.h>
 
 // ウィンドウのタイトルに表示する文字列
-const char TITLE[] = "AL3_03_02b";
+const char TITLE[] = "AL4_03_02b";
 
 // ウィンドウ横幅
 const int WIN_WIDTH = 600;
@@ -40,9 +41,23 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 
 	// ゲームループで使う変数の宣言
-	int circleX = 400;
-	int circleY = 200;
-	int radius = 20;
+	float circleX = 400.0f;
+	float circleY = 100.0f;
+	float radius = 20.0f;
+
+	float lineStartX = 100.0f;
+	float lineStartY = 200.0f;
+	float lineEndX = 400.0f;
+	float lineEndY = 300.0f;
+	float cross = 0.0f;
+	VECTOR vec_line,vec_circle;
+	bool isHit = false;
+	int color;
+		
+	//float vec_line_val;
+	//float vec_circle_val;
+	//float angle;
+	//float dot = 0.0f;
 
 	// 最新のキーボード情報用
 	char keys[256] = {0};
@@ -74,9 +89,53 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			circleY += 4;
 		}
 
-		// 描画処理
-		DrawCircle(circleX, circleY, radius, GetColor(255, 255, 255), true);
+		vec_line = VGet(lineEndX - lineStartX, lineEndY - lineStartY, 0.0f);
+		vec_line = VNorm(vec_line);
 
+		vec_circle = VGet(circleX - lineStartX, circleY - lineStartY, 0.0f);
+
+		//vec_line_val = sqrt(pow(vec_line.x, 2) + pow(vec_line.y, 2));
+		//vec_circle_val = sqrt(pow(vec_circle.x, 2) + pow(vec_circle.y, 2));
+		//angle = (vec_line_val * vec_circle_val) / ()
+		//dot = vec_line.x * vec_line.y + vec_circle.x * vec_circle.y;
+
+		isHit = false;
+		//当たり判定
+		if (circleX >= lineStartX && circleX < lineEndX) {
+			// 外積を計算
+			cross = vec_line.x * vec_circle.y - vec_line.y * vec_circle.x;
+
+			if (cross > -radius && cross < radius) {
+				isHit = true;
+			}
+			else {
+				isHit = false;
+			}
+		}
+		else {
+
+			if (pow(circleX - lineStartX, 2) + pow(circleY - lineStartY, 2) <= radius * radius) {
+				isHit = true;
+			}
+
+			if (pow(circleX - lineEndX, 2) + pow(circleY - lineEndY, 2) <= radius * radius) {
+				isHit = true;
+			}
+		}
+
+		if (isHit == true) {
+			color = GetColor(255, 0, 0);
+		}
+		else {
+			color = GetColor(255, 255, 255);
+		}
+
+		// 描画処理
+		DrawCircle(circleX, circleY, radius, color, true);
+		DrawLine(lineStartX, lineStartY, lineEndX, lineEndY, GetColor(255, 255, 255));
+
+		DrawFormatString(0, 0, GetColor(255, 255, 255), "WASD : 移動");
+	
 		//---------  ここまでにプログラムを記述  ---------//
 		// (ダブルバッファ)裏面
 		ScreenFlip();
